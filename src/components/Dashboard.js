@@ -1,5 +1,5 @@
-import React from 'react'
-import {Dropdown} from 'react-bootstrap'
+import React, { useState } from 'react'
+import {Dropdown, Button} from 'react-bootstrap'
 
 const Dashboard = () => {
     const authInstance = window.gapi.auth2.getAuthInstance()
@@ -10,6 +10,29 @@ const Dashboard = () => {
 
     const handleSignOut = () => {
         authInstance.signOut();
+    }
+
+    const [event, setEvent] = useState({
+        title: "",
+    })
+
+    function handleEventChange(e) {
+        setEvent({...event, title: e.target.value})
+    }
+    
+    function createSheet() {
+        var spreadsheetBody = {
+          "properties": {
+              "title": "Created by Google API",
+          },
+        };
+   
+        var request = window.gapi.client.sheets.spreadsheets.create({}, spreadsheetBody);
+        request.then(function(response) {
+          console.log(response.result);
+        }, function(reason) {
+          console.error('error: ' + reason.result.error.message);
+        });
     }
 
     return (
@@ -29,8 +52,10 @@ const Dashboard = () => {
             <div className="container">
                 <p>Timeline Generator</p>
                 <form>
-                    <textarea></textarea>
+                    <textarea placeholder="Sheet Title" onChange={handleEventChange}/>
                 </form>
+                <p>{event.title}</p>
+                <Button variant="primary" onClick={createSheet}>Create Google Sheet</Button>
             </div>
         </>
     )
