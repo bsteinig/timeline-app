@@ -15,25 +15,27 @@ class App extends React.Component {
     }
 
     initializeGoogleSignIn() {
-        window.gapi.client.init({
-            'apiKey': 'AIzaSyCyakYPNUbnpF6tVj37bJ6MDGqRyRl0ocA',
-            'clientId': '564893688827-083ol0fcip1gmf2b9qm43pt1dab4dq58.apps.googleusercontent.com',
-            'scope': 'https://www.googleapis.com/auth/spreadsheets',
-            'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
-        }).then(() => {
-          const authInstance =  window.gapi.auth2.getAuthInstance()
-          const isSignedIn = authInstance.isSignedIn.get()
-          this.setState({isSignedIn})
-
-          authInstance.isSignedIn.listen(isSignedIn => {
+        window.gapi.load('client', () => { 
+            window.gapi.client.init({
+                'apiKey': `${process.env.REACT_APP_API_KEY}`,
+                'clientId': '564893688827-083ol0fcip1gmf2b9qm43pt1dab4dq58.apps.googleusercontent.com',
+                'scope': 'https://www.googleapis.com/auth/spreadsheets',
+                'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+            }).then(() => {
+            const authInstance =  window.gapi.auth2.getAuthInstance()
+            const isSignedIn = authInstance.isSignedIn.get()
             this.setState({isSignedIn})
-          })
+
+            authInstance.isSignedIn.listen(isSignedIn => {
+                this.setState({isSignedIn})
+            })
+            })
         })
     }
 
     componentDidMount() {
       const script = document.createElement('script')
-      script.src = 'https://apis.google.com/js/client.js'
+      script.src = 'https://apis.google.com/js/api.js'
       script.onload = () => this.initializeGoogleSignIn()
       document.body.appendChild(script)
     }

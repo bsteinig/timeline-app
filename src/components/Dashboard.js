@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import {Dropdown, Button} from 'react-bootstrap'
+import {Nav, Dropdown, Button} from 'react-bootstrap'
 
 const Dashboard = () => {
     const authInstance = window.gapi.auth2.getAuthInstance()
@@ -16,6 +16,11 @@ const Dashboard = () => {
         title: "",
     })
 
+    const [link, setLink] = useState({
+        link: "",
+        linkCreated: false,
+    })
+
     function handleEventChange(e) {
         setEvent({...event, title: e.target.value})
     }
@@ -23,29 +28,31 @@ const Dashboard = () => {
     function createSheet() {
         var spreadsheetBody = {
           "properties": {
-              "title": "Created by Google API",
+              "title": event.title,
           },
         };
    
         var request = window.gapi.client.sheets.spreadsheets.create({}, spreadsheetBody);
         request.then(function(response) {
           console.log(response.result);
+          setLink({ link: response.result.spreadsheetUrl, linkCreated: true})
         }, function(reason) {
           console.error('error: ' + reason.result.error.message);
         });
+        
     }
 
     return (
         <>
-            <nav>
+            <nav variant="pills">
                 <div>Timeline.JS Tool</div>
                 <img className="push" src={imageUrl} alt="Me"/>
                 <Dropdown>
-                    <Dropdown.Toggle as="a">
+                    <Dropdown.Toggle as='a'>
                         {email}
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
-                        <Dropdown.Item onClick={handleSignOut}>Sign out</Dropdown.Item>
+                        <Dropdown.Item href="/" onClick={handleSignOut}>Sign out</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </nav>
@@ -56,6 +63,8 @@ const Dashboard = () => {
                 </form>
                 <p>{event.title}</p>
                 <Button variant="primary" onClick={createSheet}>Create Google Sheet</Button>
+                <p>Your Google Sheet is here:</p>
+                { link.linkCreated ? <a href={link.link} target="_blank">Google Sheet</a> : <p></p> }
             </div>
         </>
     )
