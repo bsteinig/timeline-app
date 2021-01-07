@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import {Nav, Dropdown, Button} from 'react-bootstrap'
+import { Dropdown, Button} from 'react-bootstrap'
 
 const Dashboard = () => {
     const authInstance = window.gapi.auth2.getAuthInstance()
@@ -12,12 +12,15 @@ const Dashboard = () => {
         authInstance.signOut();
     }
 
+    const [disabled, setDisabled] = useState(true);
+
     const [event, setEvent] = useState({
         title: "",
     })
 
-    const [link, setLink] = useState({
+    const [sheet, setSheet] = useState({
         link: "",
+        id: "",
         linkCreated: false,
     })
 
@@ -34,12 +37,39 @@ const Dashboard = () => {
    
         var request = window.gapi.client.sheets.spreadsheets.create({}, spreadsheetBody);
         request.then(function(response) {
-          console.log(response.result);
-          setLink({ link: response.result.spreadsheetUrl, linkCreated: true})
-        }, function(reason) {
+          console.log(response.result)
+          setSheet({ link: response.result.spreadsheetUrl, id: response.result.spreadsheetId })
+          setDisabled(false)
+        }, function(reason) {   
           console.error('error: ' + reason.result.error.message);
         });
         
+    }
+
+    function updateSheet() {
+
+        
+        var values = [['Year',"Month","Day","Time","End Year", "End Month", "End Day", "End Time", "Display Date", "Headline", "Text", "Media", "Media Credit", "Media Caption", "Media Thumbnail", "Type", "Group", "Background"]]
+
+        var body = {
+            values: values
+        }
+
+        var params = {
+            spreadsheetId: sheet.id,
+            range: 'A1:R1',
+            valueInputOption: 'USER_ENTERED',
+            resource: body
+        }
+        console.log(params.spreadsheetId)
+        
+
+        var updateRequest = window.gapi.client.sheets.spreadsheets.values.update(params);
+        updateRequest.then(function(response) {
+            console.log('Sheet updated')
+        }, function(reason) {
+            console.error('error: ' + reason.result.error.message)
+        })
     }
 
     return (
@@ -62,9 +92,13 @@ const Dashboard = () => {
                     <textarea placeholder="Sheet Title" onChange={handleEventChange}/>
                 </form>
                 <p>{event.title}</p>
+                <span>
                 <Button variant="primary" onClick={createSheet}>Create Google Sheet</Button>
+                <p>Create Sheet to Submit Data</p>
+                <Button variant="success" disabled={disabled} onClick={updateSheet}>Submit Data</Button>
+                </span>
                 <p>Your Google Sheet is here:</p>
-                { link.linkCreated ? <a href={link.link} target="_blank">Google Sheet</a> : <p></p> }
+                { sheet.linkCreated ? <a href={sheet.link} rel="noreferrer" target="_blank">Google Sheet</a> : <p></p> }
             </div>
         </>
     )
