@@ -1,5 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Dropdown, Button} from 'react-bootstrap'
+import Form from './Form'
+
+const LOCAL_STORAGE_KEY = "react-event-list_events"
 
 const Dashboard = () => {
     const authInstance = window.gapi.auth2.getAuthInstance()
@@ -14,8 +17,8 @@ const Dashboard = () => {
 
     const [disabled, setDisabled] = useState(true);
 
-    const [event, setEvent] = useState({
-        title: "",
+    const [title, setTitle] = useState({
+        text: "",
     })
 
     const [sheet, setSheet] = useState({
@@ -24,14 +27,35 @@ const Dashboard = () => {
         linkCreated: false,
     })
 
-    function handleEventChange(e) {
-        setEvent({...event, title: e.target.value})
+    // Form Code
+    //States
+    const [event, setEvent] = useState({
+        title: "",
+    })
+
+    const [events, setEvents] = useState([])
+
+    //Effects
+    useEffect( (events) => {
+        const storageEvents = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+        if(storageEvents) {
+        setEvents(storageEvents);
+        }
+    }, [])
+
+    useEffect( () => {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(events))
+    }, [events])
+
+
+    function handleTitleChange(e) {
+        setTitle({...title, text: e.target.value})
     }
     
     function createSheet() {
         var spreadsheetBody = {
           "properties": {
-              "title": event.title,
+              "title": title.text,
           },
         };
    
@@ -89,16 +113,24 @@ const Dashboard = () => {
             <div className="container">
                 <p>Timeline Generator</p>
                 <form>
-                    <textarea placeholder="Sheet Title" onChange={handleEventChange}/>
+                    <textarea placeholder="Sheet Title" onChange={handleTitleChange}/>
                 </form>
-                <p>{event.title}</p>
+                <p>{title.text}</p>
                 <span>
                 <Button variant="primary" onClick={createSheet}>Create Google Sheet</Button>
                 <p>Create Sheet to Submit Data</p>
                 <Button variant="success" disabled={disabled} onClick={updateSheet}>Submit Data</Button>
                 </span>
                 <p>Your Google Sheet is here:</p>
-                { sheet.linkCreated ? <a href={sheet.link} rel="noreferrer" target="_blank">Google Sheet</a> : <p></p> }
+               <a href={sheet.link} rel="noreferrer" hidden={disabled} target="_blank">Google Sheet</a> 
+            </div>
+            <div className="App">
+                <header>
+                    <h1>Timeline Form</h1>
+                </header>
+                <p>{event.title}</p>
+                <Form event={event} setEvent={setEvent} events={events} setEvents={setEvents}/>
+                <Eventlist events={events} setEvents={setEvents}/>
             </div>
         </>
     )
