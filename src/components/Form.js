@@ -2,8 +2,7 @@ import React from 'react'
 import {v4 as uuid} from 'uuid'
 import { Formik, Form as Formk ,Field, ErrorMessage } from 'formik'
 import * as yup from 'yup'
-import DateView from 'react-datepicker'
-import "react-datepicker/dist/react-datepicker.css";
+//import "react-datepicker/dist/react-datepicker.css";
 
 // Formik  Props
 const initialValues = {

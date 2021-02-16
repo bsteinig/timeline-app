@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Dropdown, Button} from 'react-bootstrap'
 import Form from './Form'
+import Eventlist from './EventList'
 
 const LOCAL_STORAGE_KEY = "react-event-list_events"
 
